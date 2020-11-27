@@ -1,8 +1,13 @@
 package com.unionpay.acp.demo;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import com.unionpay.acp.sdk.AcpService;
 import com.unionpay.acp.sdk.SDKConfig;
@@ -153,7 +160,7 @@ public class DemoBase {
 
 		
 	public static void main(String[] args) {
-		System.out.println(AcpService.encryptTrack("12", "utf-8"));
+//		System.out.println(AcpService.encryptTrack("12", "utf-8"));
 		SDKConfig.getConfig().loadPropertiesFromSrc();
 		
 		Map<String,String> customerInfoMap = new HashMap<String,String>();
@@ -168,7 +175,53 @@ public class DemoBase {
 		
 		//System.out.println(getCustomerInfoWithEncrypt(customerInfoMap,"6217001210048797565"));
 		
-		parseZMFile("C:\\Users\\wulh\\Desktop\\802310048993424_20150905\\INN15090588ZM_802310048993424");
+		DemoBase.unzip("/Volumes/D/github/unionpay/certs/filedownload/700000000000001_20201124.zip", "/Volumes/D/github/unionpay/certs/filedownload/700000000000001_20201124/");
+		parseZMFile("/Volumes/D/github/unionpay/certs/filedownload/700000000000001_20201124/INN20112488ZM_700000000000001");
+		
+		
 	}
+	
+	public static List<String> unzip(String zipFilePath,String outPutDirectory){
+		List<String> fileList = new ArrayList<String>();
+		try {
+            ZipInputStream zin = new ZipInputStream(new FileInputStream(zipFilePath));//输入源zip路径  
+            BufferedInputStream bin = new BufferedInputStream(zin);
+            BufferedOutputStream bout = null;
+            File file=null;  
+            ZipEntry entry;
+            try {
+                while((entry = zin.getNextEntry())!=null && !entry.isDirectory()){
+                	file = new File(outPutDirectory,entry.getName());  
+                    if(!file.exists()){  
+                        (new File(file.getParent())).mkdirs();  
+                    }
+                    bout = new BufferedOutputStream(new FileOutputStream(file));  
+                    int b;
+                    while((b=bin.read())!=-1){  
+                    	bout.write(b);  
+                    }
+                    bout.flush();
+                    fileList.add(file.getAbsolutePath());
+                    System.out.println(file+"解压成功");
+                }
+            } catch (IOException e) {  
+                e.printStackTrace();  
+            }finally{
+                try {
+					bin.close();
+					zin.close();
+					if(bout!=null){
+						bout.close();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}  
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();  
+        }
+		return fileList;
+	}
+
 
 }
