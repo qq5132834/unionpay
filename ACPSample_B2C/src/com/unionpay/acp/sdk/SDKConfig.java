@@ -239,7 +239,7 @@ public class SDKConfig {
 	 * @param pro
 	 */
 	public void loadProperties(Properties pro) {
-		LogUtil.writeLog("开始从属性文件中加载配置项");
+		LogUtil.writeLog("开始从属性文件中加载配置项" + pro.toString());
 		String value = null;
 		value = pro.getProperty(SDK_SINGLEMODE);
 		if (SDKUtil.isEmpty(value) || SDKConstants.TRUE_STRING.equals(value)) {
